@@ -397,7 +397,7 @@ export default function App() {
   };
 
   const clearAllData = async () => {
-    if (confirm('Apakah Anda yakin ingin menghapus semua data turnamen?')) {
+    if (confirm('Apakah Anda yakin ingin menghapus semua data turnamen? Database akan benar-benar dikosongkan.')) {
       setParticipants([]);
       setCategories([]);
       setMatches([]);
@@ -405,11 +405,13 @@ export default function App() {
       saveToLocalStorage([], [], []);
       
       try {
-        await supabase.from('participants').delete().neq('id', '0'); // delete all
-        await supabase.from('categories').delete().neq('id', '0');
         await supabase.from('matches').delete().neq('id', '0');
+        await supabase.from('categories').delete().neq('id', '0');
+        await supabase.from('participants').delete().neq('id', '0');
+        showToast('Reset Berhasil', 'Semua data turnamen telah dihapus bersih.');
       } catch(e) {
         console.error(e);
+        showToast('Error', 'Gagal mereset database Supabase.', 'error');
       }
     }
   };
@@ -453,8 +455,9 @@ export default function App() {
     };
 
     let updatedParts;
+    const currentId = item.id;
     if (editingParticipant) {
-      updatedParts = participants.map(p => p.id === pid ? item : p);
+      updatedParts = participants.map(p => p.id === currentId ? item : p);
       setEditingParticipant(null);
     } else {
       updatedParts = [...participants, item];
@@ -465,8 +468,8 @@ export default function App() {
     const updatedCats = categories.map(cat => {
       // If it has same division / category traits and not locked, add to that division listing
       if (!cat.isLocked && cat.division === item.division && cat.ageGroup === item.ageGroup) {
-        if (!cat.participantIds.includes(pid)) {
-          return { ...cat, participantIds: [...cat.participantIds, pid] };
+        if (!cat.participantIds.includes(currentId)) {
+          return { ...cat, participantIds: [...cat.participantIds, currentId] };
         }
       }
       return cat;
