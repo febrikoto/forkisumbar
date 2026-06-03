@@ -838,9 +838,9 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg border border-slate-800 p-1 overflow-hidden shrink-0">
               <img 
-                src="/input_file_1.png" 
-                alt="Logo FORKI" 
-                className="h-full w-full object-contain" 
+                src="/forki-logo.png" 
+                alt="FORKI Logo" 
+                className="w-full h-full object-contain" 
                 referrerPolicy="no-referrer"
               />
             </div>
@@ -1004,7 +1004,7 @@ export default function App() {
             <div className="w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative min-h-[160px]" id="kejurda-banner-container">
               {!bannerError ? (
                 <img 
-                  src="/input_file_0.png" 
+                  src="/banner.png" 
                   alt="KEJURDA Karate 2026 FORKI SUMBAR Banner" 
                   className="w-full h-auto object-cover max-h-[360px] md:max-h-[460px]" 
                   referrerPolicy="no-referrer"
