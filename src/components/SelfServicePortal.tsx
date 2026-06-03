@@ -154,7 +154,10 @@ export default function SelfServicePortal({ participants, onUpdateParticipant, o
       return;
     }
 
-    const newID = 'p_' + Math.random().toString(36).substr(2, 9);
+    const newID = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
     const newAthlete: Participant = {
       id: newID,
       name: regName,
@@ -202,14 +205,14 @@ export default function SelfServicePortal({ participants, onUpdateParticipant, o
   };
 
   return (
-    <div className={`w-full max-w-md mx-auto ${standalone ? 'min-h-screen flex flex-col justify-between' : ''} bg-slate-950 text-slate-100 font-sans`} id="self-service-portal-root">
+    <div className={`w-full max-w-md mx-auto ${standalone ? 'min-h-screen flex flex-col justify-between' : ''} bg-slate-950 text-slate-100 font-sans print:bg-white print:text-black`} id="self-service-portal-root">
       {/* Header Panel */}
-      <div className="bg-slate-900 border-b border-slate-800 p-5 text-center">
+      <div className="bg-slate-900 border-b border-slate-800 p-5 text-center print:hidden">
         <div className="flex items-center justify-between mb-3">
           {selectedAthlete && (
             <button 
               onClick={resetSelection}
-              className="p-1 px-2.5 rounded-lg bg-slate-800 text-xs text-slate-300 flex items-center gap-1.5 hover:bg-slate-700 transition"
+              className="p-1 px-2.5 rounded-lg bg-slate-800 text-xs text-slate-300 flex items-center gap-1.5 hover:bg-slate-700 transition print:hidden"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Kembali
             </button>
@@ -234,7 +237,7 @@ export default function SelfServicePortal({ participants, onUpdateParticipant, o
       <div className="flex-1 p-5 space-y-6">
         {/* Toggle Mode headers if no athlete is selected */}
         {!selectedAthlete && (
-          <div className="grid grid-cols-2 gap-2 bg-slate-900/60 p-1.5 rounded-xl border border-slate-850">
+          <div className="grid grid-cols-2 gap-2 bg-slate-900/60 p-1.5 rounded-xl border border-slate-850 print:hidden">
             <button
               onClick={() => {
                 setActivePortalTab('presensi');
@@ -487,14 +490,7 @@ export default function SelfServicePortal({ participants, onUpdateParticipant, o
                   <button
                     type="button"
                     onClick={() => {
-                      const printContent = document.getElementById('registration-receipt');
-                      const originalContents = document.body.innerHTML;
-                      if(printContent) {
-                        document.body.innerHTML = printContent.innerHTML;
-                        window.print();
-                        document.body.innerHTML = originalContents;
-                        window.location.reload();
-                      }
+                      window.print();
                     }}
                     className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-xs text-white font-bold py-2.5 rounded-lg shadow-md transition flex items-center justify-center gap-1.5"
                   >

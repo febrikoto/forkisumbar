@@ -431,11 +431,14 @@ export default function App() {
     e.preventDefault();
     if (!newName.trim() || !newClub.trim()) return alert('Mohon isi nama dan dojo!');
 
-    const pid = editingParticipant ? editingParticipant.id : 'p_' + Math.random().toString(36).substr(2, 9);
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
     const photo = customAvatar || KARATEKA_AVATARS[selectedAvatarIdx];
 
     const item: Participant = {
-      id: pid,
+      id: editingParticipant ? editingParticipant.id : uuid,
       name: newName,
       club: newClub,
       gender: newGender,
