@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@media print {
+  /* Reset background for crisp ink-saver physical copies */
+  html, body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  }
+
+  #app-root {
+    background: #ffffff !important;
+    color: #000000 !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Force display of elements marked as printable blocks */
+  .print\:block {
+    display: block !important;
+  }
+
+  /* Strictly hide UI controls, sidebars, buttons, and navigation */
+  .print\:hidden,
+  header,
+  nav,
+  aside,
+  button,
+  select,
+  input,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Perfect styling for bracket cells and lines */
+  .bracket-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #1a1a1a !important;
+    box-shadow: none !important;
+  }
+
+  /* Page margins and orientation defaults */
+  @page {
+    size: A4 portrait;
+    margin: 8mm 12mm 8mm 12mm;
+  }
+
+  /* Prevent page cuts across matches, bracket node cells, and tables */
+  tr, .page-break-inside-avoid, .bracket-node, .print-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Header adjustments for printed forms */
+  .print-only-header {
+    display: block !important;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+  }
+}

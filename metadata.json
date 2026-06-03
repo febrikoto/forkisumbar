@@ -1,0 +1,6 @@
+{
+  "name": "Karate Bracket Maker",
+  "description": "Aplikasi pembuatan dan manajemen bagan pertandingan karate otomatis dengan sistem Single Elimination, Double Elimination, Round Robin, dan Group Stage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
