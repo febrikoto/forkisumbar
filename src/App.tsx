@@ -835,44 +835,26 @@ export default function App() {
       <header className={`border-b ${themeConfig.headerBg} backdrop-blur-md sticky top-0 z-40 print:hidden`} id="main-header">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-                className="w-full h-full object-contain" 
-                referrerPolicy="no-referrer"
-              />
+            <div className="bg-indigo-950 p-2 rounded-xl border-2 border-indigo-500/30 shrink-0">
+              <Trophy className="h-5 w-5 text-indigo-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-widest bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/30">Aka</span>
-                <span className="text-xs font-bold uppercase tracking-widest bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30">Ao</span>
                 <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">FORKI SUMBAR</span>
               </div>
-              <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-                KEJURDA Karate 2026 Sumbar
-              </h1>
+              <h1 className="text-sm font-black text-white tracking-tight uppercase leading-none hidden sm:block mt-1">FORKI PASAMAN</h1>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider hidden sm:block">Admin Dasbor</p>
+              <h1 className="text-sm font-black text-white tracking-tight uppercase leading-none sm:hidden mt-1">FORKI</h1>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <button 
-              id="btn-load-demo"
-              onClick={loadSampleData} 
-              className="flex items-center gap-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-2 rounded-lg border border-amber-500/30 transition-all shadow-md focus:ring-2 focus:ring-amber-500"
-              title="Memulihkan data tanding simulasi"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Demo Data
-            </button>
-            <button 
-              id="btn-cls"
-              onClick={clearAllData}
-              className="flex items-center gap-2 text-xs font-medium bg-red-950/80 hover:bg-red-900 text-red-200 px-3 py-2 rounded-lg border border-red-500/30 transition-all"
-            >
-              <Trash2 className="h-4 w-4" />
-              Reset Turnamen
-            </button>
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto hide-scrollbar" id="header-actions">
             <button
-              id="btn-print-action"
-              onClick={handlePrintBracket}
-              className="flex items-center gap-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg shadow-emerald-900/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              onClick={() => {
+                const printContent = document.getElementById('main-content-scroll');
+                if(printContent) window.print();
+              }}
+              className="flex items-center gap-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg shadow-emerald-900/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap hidden sm:flex"
             >
               <Printer className="h-4 w-4" />
               Cetak Bagan
@@ -880,19 +862,20 @@ export default function App() {
             <button
               id="btn-public-portal"
               onClick={() => setIsPublicPortalActive(true)}
-              className="flex items-center gap-2 text-xs font-bold bg-gradient-to-r from-rose-650 to-indigo-650 hover:from-rose-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg shadow-indigo-950/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-rose-500/10"
+              className="flex items-center gap-2 text-xs font-bold bg-gradient-to-r from-rose-650 to-indigo-650 hover:from-rose-600 hover:to-indigo-600 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg shadow-indigo-950/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-rose-500/10 whitespace-nowrap"
               title="Buka portal informasi publik ramah penonton"
             >
               <Eye className="h-4 w-4 text-amber-400" />
-              Portal Publik Live
+              <span className="hidden sm:inline">Portal Publik Live</span>
+              <span className="sm:hidden">Portal</span>
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 transition-all ml-2 cursor-pointer"
+              className="flex items-center gap-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 transition-all cursor-pointer whitespace-nowrap"
               title="Keluar / Logout"
             >
               <LogOut className="h-4 w-4 text-rose-400" />
-              Keluar
+              <span className="hidden sm:inline">Keluar</span>
             </button>
           </div>
         </div>
