@@ -46,6 +46,7 @@ import {
   SAMPLE_CATEGORIES, 
   KARATEKA_AVATARS 
 } from './sampleData';
+import { supabase } from './lib/supabase';
 import { 
   generateSingleElimination, 
   generateDoubleElimination, 
@@ -207,79 +208,64 @@ export default function App() {
     }
   };
 
-  // Persistence and Demo Loader
+  // Persistence and Supabase Loader
   useEffect(() => {
-    const savedParticipants = localStorage.getItem('karate_participants');
-    const savedCategories = localStorage.getItem('karate_categories');
-    const savedMatches = localStorage.getItem('karate_matches');
-
-    const savedPaymentSettings = localStorage.getItem('karate_payment_settings');
-    if (savedPaymentSettings) {
-      try { setPaymentSettings(JSON.parse(savedPaymentSettings)); } catch(e) {}
-    }
-
-    const session = localStorage.getItem('karate_session');
-    if (session) {
-      try { setLoggedInUser(JSON.parse(session)); } catch(e) {}
-    }
-
     // Check if loading as a self-service attendee station
     if (window.location.search.includes('presensi=atlet')) {
       setIsSelfServiceActive(true);
     }
 
-    if (savedParticipants && savedCategories) {
-      setParticipants(JSON.parse(savedParticipants));
-      setCategories(JSON.parse(savedCategories));
-      if (savedMatches) setMatches(JSON.parse(savedMatches));
-    } else {
-      // First run - load samples automatically
-      loadSampleData();
-    }
+    const loadData = async () => {
+      try {
+        const [partsRes, catsRes, matsRes, settingsRes] = await Promise.all([
+          supabase.from('participants').select('*'),
+          supabase.from('categories').select('*'),
+          supabase.from('matches').select('*'),
+          supabase.from('payment_settings').select('*').limit(1)
+        ]);
 
-    // Storage event synchronization for concurrent tab/phone operations
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'karate_participants' && e.newValue) {
-        try {
-          setParticipants(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
+        if (partsRes.data && partsRes.data.length > 0) setParticipants(partsRes.data);
+        else setParticipants(SAMPLE_PARTICIPANTS);
+
+        if (catsRes.data && catsRes.data.length > 0) setCategories(catsRes.data);
+        else setCategories(SAMPLE_CATEGORIES);
+
+        if (matsRes.data && matsRes.data.length > 0) setMatches(matsRes.data);
+        
+        if (settingsRes.data && settingsRes.data.length > 0) setPaymentSettings(settingsRes.data[0]);
+
+        const session = localStorage.getItem('karate_session');
+        if (session) {
+          try { setLoggedInUser(JSON.parse(session)); } catch(e) {}
         }
-      }
-      if (e.key === 'karate_categories' && e.newValue) {
-        try {
-          setCategories(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'karate_matches' && e.newValue) {
-        try {
-          setMatches(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
+      } catch (e) {
+        console.error('Failed to load from Supabase:', e);
       }
     };
 
-    // Custom browser custom event dispatcher for in-app updates
-    const handleCustomUpdate = () => {
-      const savedParts = localStorage.getItem('karate_participants');
-      if (savedParts) {
-        try {
-          setParticipants(JSON.parse(savedParts));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    };
+    loadData();
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('karate_participants_updated', handleCustomUpdate);
-    
+    // Supabase Real-time subscriptions
+    const partsChannel = supabase.channel('participants_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'participants' }, payload => {
+        // Simple strategy: trigger full reload on changes to avoid complex state merge logic during fast events
+        supabase.from('participants').select('*').then(({ data }) => data && setParticipants(data));
+      }).subscribe();
+
+    const catsChannel = supabase.channel('categories_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, payload => {
+        supabase.from('categories').select('*').then(({ data }) => data && setCategories(data));
+      }).subscribe();
+
+    const matsChannel = supabase.channel('matches_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, payload => {
+        supabase.from('matches').select('*').then(({ data }) => data && setMatches(data));
+      }).subscribe();
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('karate_participants_updated', handleCustomUpdate);
+      supabase.removeChannel(partsChannel);
+      supabase.removeChannel(catsChannel);
+      supabase.removeChannel(matsChannel);
     };
   }, []);
 
@@ -386,10 +372,20 @@ export default function App() {
     saveToLocalStorage(updatedParts, categories, matches);
   };
 
-  const saveToLocalStorage = (parts: Participant[], cats: Category[], mats: Match[]) => {
+  const saveToLocalStorage = async (parts: Participant[], cats: Category[], mats: Match[]) => {
+    // Keep local cache for fast reload
     localStorage.setItem('karate_participants', JSON.stringify(parts));
     localStorage.setItem('karate_categories', JSON.stringify(cats));
     localStorage.setItem('karate_matches', JSON.stringify(mats));
+    
+    // Background sync to Supabase
+    try {
+      if (parts.length > 0) await supabase.from('participants').upsert(parts);
+      if (cats.length > 0) await supabase.from('categories').upsert(cats);
+      if (mats.length > 0) await supabase.from('matches').upsert(mats);
+    } catch (e) {
+      console.error('Supabase sync failed:', e);
+    }
   };
 
   const loadSampleData = () => {
@@ -400,20 +396,34 @@ export default function App() {
     setSelectedCategory(SAMPLE_CATEGORIES[0]);
   };
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
     if (confirm('Apakah Anda yakin ingin menghapus semua data turnamen?')) {
       setParticipants([]);
       setCategories([]);
       setMatches([]);
       setSelectedCategory(null);
       saveToLocalStorage([], [], []);
+      
+      try {
+        await supabase.from('participants').delete().neq('id', '0'); // delete all
+        await supabase.from('categories').delete().neq('id', '0');
+        await supabase.from('matches').delete().neq('id', '0');
+      } catch(e) {
+        console.error(e);
+      }
     }
   };
 
-  const handleSavePaymentSettings = (e: React.FormEvent) => {
+  const handleSavePaymentSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('karate_payment_settings', JSON.stringify(paymentSettings));
     showToast('Pengaturan Disimpan', 'Data rekening pembayaran berhasil diperbarui.', 'success');
+    
+    try {
+      await supabase.from('payment_settings').upsert({ id: '00000000-0000-0000-0000-000000000000', ...paymentSettings });
+    } catch(e) {
+      console.error(e);
+    }
   };
 
   // HANDLERS FOR ATHLETES
@@ -483,7 +493,7 @@ export default function App() {
     }
   };
 
-  const handleDeleteParticipant = (id: string) => {
+  const handleDeleteParticipant = async (id: string) => {
     if (!confirm('Hapus peserta ini dari turnamen?')) return;
     const parts = participants.filter(p => p.id !== id);
     const cats = categories.map(c => ({
@@ -504,6 +514,12 @@ export default function App() {
     setCategories(cats);
     setMatches(mats);
     saveToLocalStorage(parts, cats, mats);
+    
+    try {
+      await supabase.from('participants').delete().eq('id', id);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -550,7 +566,7 @@ export default function App() {
     setNewCatName('');
   };
 
-  const handleDeleteCategory = (id: string) => {
+  const handleDeleteCategory = async (id: string) => {
     if (!confirm('Hapus kategori tanding ini beserta bagannya?')) return;
     const cats = categories.filter(c => c.id !== id);
     const mats = matches.filter(m => m.categoryId !== id);
@@ -560,6 +576,14 @@ export default function App() {
     setCategories(cats);
     setMatches(mats);
     saveToLocalStorage(participants, cats, mats);
+    
+    try {
+      await supabase.from('categories').delete().eq('id', id);
+      // matches deletion is cascading in SQL if setup, but we'll manually enforce it anyway
+      await supabase.from('matches').delete().eq('categoryId', id);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // BRACKET GENERATION LOGIC
