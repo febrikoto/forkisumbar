@@ -274,7 +274,7 @@ export default function PublicPortalView({ participants, categories, matches, on
               
               <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
                 <div className="hidden sm:block shrink-0 bg-white p-2 rounded-xl border-4 border-amber-500/30 shadow-xl shadow-amber-900/20 self-start md:self-center">
-                  <img src="https://upload.wikimedia.org/wikipedia/id/5/5f/Logo_FORKI_%28Federasi_Olahraga_Karate-Do_Indonesia%29.png" alt="FORKI Logo" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
+                  <img src="/forki-logo.png" alt="FORKI Logo" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-4">

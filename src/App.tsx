@@ -1016,7 +1016,7 @@ export default function App() {
                   <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full filter blur-3xl -ml-16 -mb-16 pointer-events-none"></div>
                   <div className="relative z-10 max-w-2xl flex items-center gap-6">
                     <div className="hidden sm:block shrink-0 bg-white p-2 rounded-xl border-4 border-amber-500/30 shadow-xl shadow-amber-900/20">
-                      <img src="https://upload.wikimedia.org/wikipedia/id/5/5f/Logo_FORKI_%28Federasi_Olahraga_Karate-Do_Indonesia%29.png" alt="FORKI Logo" className="w-20 h-20 md:w-28 md:h-28 object-contain" />
+                      <img src="/forki-logo.png" alt="FORKI Logo" className="w-20 h-20 md:w-28 md:h-28 object-contain" />
                     </div>
                     <div>
                       <span className="text-amber-400 text-xs font-black uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 rounded-full">
