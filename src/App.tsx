@@ -832,14 +832,9 @@ export default function App() {
     <div className={`min-h-screen ${themeConfig.rootBg} text-slate-100 flex flex-col font-sans`} id="app-root">
       <ToastContainer toasts={toasts} onDismiss={handleDismissToast} />
       
-      {/* HEADER SECTION (FORKINDO THEMATIC COMBAT STYLE) */}
       <header className={`border-b ${themeConfig.headerBg} backdrop-blur-md sticky top-0 z-40 print:hidden`} id="main-header">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg border border-slate-800 p-1 overflow-hidden shrink-0">
-              <img 
-                src="/forki-logo.png" 
-                alt="FORKI Logo" 
                 className="w-full h-full object-contain" 
                 referrerPolicy="no-referrer"
               />
@@ -921,12 +916,12 @@ export default function App() {
       <div className="flex-1 flex flex-col md:flex-row print:flex-col min-h-0" id="main-frame-layout">
         
         {/* SIDEBAR NAVIGATION PANEL (17 ITEMS) */}
-        <aside className={`w-full md:w-64 ${themeConfig.sidebarBg} flex flex-col justify-between p-4 space-y-4 print:hidden shrink-0`} id="left-sidebar">
-          <div className="space-y-4">
+        <aside className={`w-full md:w-64 ${themeConfig.sidebarBg} flex flex-col justify-between p-3 sm:p-4 space-y-4 print:hidden shrink-0 border-b md:border-b-0 border-slate-800`} id="left-sidebar">
+          <div className="space-y-2 sm:space-y-4 overflow-hidden">
             <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-2.5">Menu Navigasi</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-2.5 hidden md:block">Menu Navigasi</p>
               
-              <nav className="space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+              <nav className="flex md:flex-col gap-2 md:space-y-1 overflow-x-auto md:overflow-y-auto max-h-[120px] md:max-h-[calc(100vh-220px)] pr-1 pb-2 md:pb-0 hide-scrollbar w-full">
                 {[
                   { id: 'dashboard', label: '1. Dashboard', icon: Trophy },
                   { id: 'participants', label: '2. Daftar Peserta', icon: Users },
@@ -973,10 +968,10 @@ export default function App() {
                           setActiveTab(item.id);
                         }
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold tracking-tight transition-all text-left cursor-pointer ${
+                      className={`shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-bold tracking-tight transition-all text-left cursor-pointer whitespace-nowrap ${
                         active 
                           ? `${themeConfig.accentBg} font-extrabold text-white` 
-                          : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800 md:border-transparent'
                       }`}
                     >
                       <Icon className="h-4 w-4 shrink-0 text-slate-400" />
@@ -987,6 +982,7 @@ export default function App() {
               </nav>
             </div>
           </div>
+
 
           <div className="pt-3 border-t border-slate-900 text-[10px] text-slate-500 text-center font-mono">
             v2.0 • fork indo admin
@@ -1534,15 +1530,19 @@ export default function App() {
                                 <button
                                   onClick={() => {
                                     const updatedP = {...p, verificationStatus: 'Terverifikasi' as const, paymentStatus: 'Lunas' as const};
-                                    setParticipants(prev => prev.map(x => x.id === p.id ? updatedP : x));
-                                    setCategories(prevCats => prevCats.map(cat => {
+                                    const newParts = participants.map(x => x.id === p.id ? updatedP : x);
+                                    const newCats = categories.map(cat => {
                                       if (!cat.isLocked && cat.division === updatedP.division && cat.ageGroup === updatedP.ageGroup) {
                                         if (!cat.participantIds.includes(updatedP.id)) {
                                           return { ...cat, participantIds: [...cat.participantIds, updatedP.id] };
                                         }
                                       }
                                       return cat;
-                                    }));
+                                    });
+                                    setParticipants(newParts);
+                                    setCategories(newCats);
+                                    saveToLocalStorage(newParts, newCats, matches);
+                                    showToast('Diverifikasi', `${p.name} telah diverifikasi dan masuk kelas.`);
                                   }}
                                   className="p-1 text-emerald-400 hover:bg-emerald-500/20 rounded border border-emerald-500/20 text-[10px] flex gap-1 items-center font-bold"
                                 >
@@ -1550,7 +1550,10 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setParticipants(prev => prev.map(x => x.id === p.id ? {...x, verificationStatus: 'Ditolak'} : x));
+                                    const newParts = participants.map(x => x.id === p.id ? {...x, verificationStatus: 'Ditolak' as const} : x);
+                                    setParticipants(newParts);
+                                    saveToLocalStorage(newParts, categories, matches);
+                                    showToast('Ditolak', `${p.name} pendaftarannya ditolak.`);
                                   }}
                                   className="p-1 text-red-400 hover:bg-red-500/20 rounded border border-red-500/20 text-[10px] flex gap-1 items-center font-bold"
                                 >
