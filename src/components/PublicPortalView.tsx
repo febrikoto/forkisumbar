@@ -3,7 +3,7 @@ import { Participant, Category, Match, PaymentSettings } from '../types';
 import { 
   Trophy, Search, Calendar, Award, User, RefreshCw, 
   MapPin, Clock, ArrowLeft, ArrowRight, Shield, Layers,
-  Activity, Users, Megaphone, Check, ChevronRight, Eye, Star, Sparkles, UserPlus, UserCheck, Printer
+  Activity, Users, Megaphone, Check, ChevronRight, Eye, Star, Sparkles, UserPlus, UserCheck, Printer, X
 } from 'lucide-react';
 import SelfServicePortal from './SelfServicePortal';
 
@@ -26,6 +26,7 @@ const AVATAR_FALLBACKS = [
 
 export default function PublicPortalView({ participants, categories, matches, onClose, onAddParticipant, onUpdateParticipant, paymentSettings }: PublicPortalViewProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'arena' | 'brackets' | 'athletes' | 'announcements' | 'register'>('overview');
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   
   // States
   const [athleteQuery, setAthleteQuery] = useState('');
@@ -941,6 +942,35 @@ export default function PublicPortalView({ participants, categories, matches, on
           </p>
         </div>
       </footer>
+
+    {/* WELCOME BANNER POPUP */}
+    {showWelcomeBanner && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 duration-500">
+          <button 
+            onClick={() => setShowWelcomeBanner(false)}
+            className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-950/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          
+          <img 
+            src="/banner.png" 
+            alt="Welcome Banner Kejurda FORKI" 
+            className="w-full h-auto object-cover max-h-[70vh]"
+          />
+          
+          <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-950 to-transparent flex justify-center">
+            <button 
+              onClick={() => setShowWelcomeBanner(false)}
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition-transform hover:scale-105 shadow-indigo-900/50"
+            >
+              Masuk ke Portal Publik
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
 
     </div>
   );
