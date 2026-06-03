@@ -441,69 +441,121 @@ export default function SelfServicePortal({ participants, onUpdateParticipant, o
         ) : (
           /* REGISTRASI MANDIRI (NEW ATHLETE) */
           regSuccess ? (
-            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 relative" id="registration-receipt">
-              <div className="absolute top-0 right-0 w-full h-full bg-indigo-900/10 pointer-events-none rounded-2xl"></div>
+            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 relative print:bg-white print:p-0 print:border-none" id="registration-receipt">
               
-              <div className="text-center pb-3 border-b border-dashed border-slate-700">
-                <div className="h-12 w-12 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto text-indigo-400 border border-indigo-500/30 mb-2">
-                  <CheckCircle2 className="h-6 w-6" />
-                </div>
-                <h4 className="text-sm font-black text-white uppercase tracking-wider">Bukti Pendaftaran</h4>
-                <p className="text-[10px] text-slate-400">Harap simpan atau cetak bukti ini.</p>
-              </div>
-
-              <div className="space-y-3 text-xs relative z-10">
-                <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 bg-slate-800 rounded-lg overflow-hidden border border-slate-700 shrink-0">
-                    <img src={regSuccess.photoUrl || 'https://via.placeholder.com/150'} alt="Foto Atlet" className="w-full h-full object-cover" />
+              {/* --- SCREEN UI (Hidden on Print) --- */}
+              <div className="print:hidden space-y-4">
+                <div className="absolute top-0 right-0 w-full h-full bg-indigo-900/10 pointer-events-none rounded-2xl"></div>
+                
+                <div className="text-center pb-3 border-b border-dashed border-slate-700">
+                  <div className="h-12 w-12 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto text-indigo-400 border border-indigo-500/30 mb-2">
+                    <CheckCircle2 className="h-6 w-6" />
                   </div>
-                  <div>
-                    <h5 className="font-black text-white uppercase text-sm">{regSuccess.name}</h5>
-                    <p className="text-rose-400 font-bold text-[10px] uppercase">{regSuccess.club}</p>
-                    <p className="text-slate-400 font-mono mt-1 text-[9px]">ID: {regSuccess.id}</p>
-                  </div>
+                  <h4 className="text-sm font-black text-white uppercase tracking-wider">Bukti Pendaftaran</h4>
+                  <p className="text-[10px] text-slate-400">Harap simpan atau cetak bukti ini.</p>
                 </div>
 
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-left space-y-2">
-                  <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                    <span className="text-slate-400">Kategori:</span>
-                    <span className="text-white font-bold">{regSuccess.categoryType} ({regSuccess.division})</span>
+                <div className="space-y-3 text-xs relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-16 bg-slate-800 rounded-lg overflow-hidden border border-slate-700 shrink-0">
+                      <img src={regSuccess.photoUrl || 'https://via.placeholder.com/150'} alt="Foto Atlet" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h5 className="font-black text-white uppercase text-sm">{regSuccess.name}</h5>
+                      <p className="text-rose-400 font-bold text-[10px] uppercase">{regSuccess.club}</p>
+                      <p className="text-slate-400 font-mono mt-1 text-[9px]">ID: {regSuccess.id.split('-')[0].toUpperCase()}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                    <span className="text-slate-400">Status Verifikasi:</span>
-                    <span className="text-amber-400 font-extrabold flex items-center gap-1">⏱ MENUNGGU</span>
+
+                  <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-left space-y-2">
+                    <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                      <span className="text-slate-400">Kategori:</span>
+                      <span className="text-white font-bold">{regSuccess.categoryType} ({regSuccess.division})</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                      <span className="text-slate-400">Status Verifikasi:</span>
+                      <span className="text-amber-400 font-extrabold flex items-center gap-1">⏱ MENUNGGU</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Status Bayar:</span>
+                      <span className="text-amber-400 font-extrabold">{regSuccess.paymentStatus}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Status Bayar:</span>
-                    <span className="text-amber-400 font-extrabold">{regSuccess.paymentStatus}</span>
-                  </div>
+                </div>
+
+                <div className="pt-2 flex gap-2 relative z-10">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const printContent = document.getElementById('registration-receipt');
+                      const originalContents = document.body.innerHTML;
+                      if(printContent) {
+                        document.body.innerHTML = printContent.innerHTML;
+                        window.print();
+                        document.body.innerHTML = originalContents;
+                        window.location.reload();
+                      }
+                    }}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-xs text-white font-bold py-2.5 rounded-lg shadow-md transition flex items-center justify-center gap-1.5"
+                  >
+                    <Printer className="h-4 w-4" /> Cetak Bukti
+                  </button>
+                  <button
+                    onClick={resetRegistrationForm}
+                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-xs text-white font-bold py-2.5 rounded-lg border border-slate-700 transition"
+                  >
+                    Tutup
+                  </button>
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-2 relative z-10 print:hidden">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const printContent = document.getElementById('registration-receipt');
-                    const originalContents = document.body.innerHTML;
-                    if(printContent) {
-                      document.body.innerHTML = printContent.innerHTML;
-                      window.print();
-                      document.body.innerHTML = originalContents;
-                      window.location.reload();
-                    }
-                  }}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-xs text-white font-bold py-2.5 rounded-lg shadow-md transition flex items-center justify-center gap-1.5"
-                >
-                  <Printer className="h-4 w-4" /> Cetak Bukti
-                </button>
-                <button
-                  onClick={resetRegistrationForm}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-xs text-white font-bold py-2.5 rounded-lg border border-slate-700 transition"
-                >
-                  Tutup
-                </button>
+              {/* --- PRINT UI (Hidden on Screen) --- */}
+              <div className="hidden print:block bg-white text-black p-10 font-sans w-full max-w-2xl mx-auto">
+                <div className="flex flex-col items-center justify-center text-center space-y-1">
+                  <img src="/forki-logo.png" alt="FORKI Logo" className="h-20 w-auto mb-3 object-contain" />
+                  <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-medium">Federasi Olahraga Karate-Do Indonesia</p>
+                  <h1 className="text-2xl font-black uppercase tracking-tight m-0 text-black">KEJURDA KARATE 2026</h1>
+                  <p className="text-gray-500 text-xs font-medium">Kabupaten Pasaman</p>
+                </div>
+
+                <hr className="border-black border-t-2 my-6" />
+
+                <div className="text-center space-y-2 mb-8">
+                  <p className="text-gray-400 text-[10px] uppercase tracking-[0.1em] font-bold">BUKTI PENDAFTARAN</p>
+                  <h2 className="text-2xl font-black tracking-widest text-black">
+                    FRK{regSuccess.id.replace(/-/g, '').substring(0, 12).toUpperCase()}
+                  </h2>
+                </div>
+
+                <div className="space-y-6 mb-12 px-4">
+                  <div className="flex justify-between items-end border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm font-medium">Nama Lengkap</span>
+                    <span className="font-bold text-sm text-right text-black">{regSuccess.name}</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm font-medium">Kontingen</span>
+                    <span className="font-bold text-sm text-right text-black">{regSuccess.club}</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm font-medium">Kelas Tanding</span>
+                    <span className="font-bold text-sm text-right text-black">{regSuccess.categoryType} {regSuccess.division}</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm font-medium">Jenis Kelamin</span>
+                    <span className="font-bold text-sm text-right text-black">{regSuccess.gender}</span>
+                  </div>
+                </div>
+
+                <hr className="border-gray-200 border-t-2 border-dashed my-8" />
+
+                <div className="text-center space-y-1.5">
+                  <p className="text-gray-400 text-[11px] font-medium">Tunjukkan bukti ini kepada panitia saat hari-H</p>
+                  <p className="text-gray-400 text-[11px] font-medium">
+                    Dicetak pada: {new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}
+                  </p>
+                </div>
               </div>
+
             </div>
           ) : (
             <form onSubmit={handleRegisterNewAthlete} className="space-y-4">
