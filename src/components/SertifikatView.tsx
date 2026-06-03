@@ -13,6 +13,7 @@ export default function SertifikatView({ participants }: SertifikatViewProps) {
   const [chairman, setChairman] = useState('Khairuddin Simanjuntak');
   const [awardDate, setAwardDate] = useState('28 Juni 2026');
   const [cityPrefix, setCityPrefix] = useState('Kab. Pasaman');
+  const [customFrame, setCustomFrame] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('karate_settings');
@@ -44,6 +45,19 @@ export default function SertifikatView({ participants }: SertifikatViewProps) {
       return alert('Harap pilih nama karateka penerima sertifikat!');
     }
     window.print();
+  };
+
+  const handleFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setCustomFrame(event.target.result.toString());
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -115,19 +129,36 @@ export default function SertifikatView({ participants }: SertifikatViewProps) {
             </div>
           </div>
 
+          <div className="space-y-2 mt-4 pt-4 border-t border-slate-850">
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">Bingkai Sertifikat Kustom (Opsional)</label>
+            <p className="text-[10px] text-slate-500 leading-tight">Unggah desain bingkai kosong Anda (ukuran A4 Potret). Jika dikosongkan, akan menggunakan bingkai bawaan.</p>
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              onChange={handleFrameUpload}
+              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-rose-600 file:text-white hover:file:bg-rose-500 cursor-pointer"
+            />
+            {customFrame && (
+              <button onClick={() => setCustomFrame(null)} className="text-[10px] text-rose-500 hover:text-rose-400 font-bold uppercase mt-1">Hapus Bingkai Kustom</button>
+            )}
+          </div>
+
           <button
             onClick={handlePrintCertificate}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-2 shadow shadow-emerald-950/40 cursor-pointer"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 shadow shadow-emerald-950/40 cursor-pointer mt-4"
           >
             <Printer className="h-4 w-4" /> Cetak Lembar Sertifikat
           </button>
         </div>
 
         {/* Certificate Mockup Canvas (Right column) */}
-        <div className="lg:col-span-7 bg-slate-950/40 border border-slate-850 p-6 rounded-xl flex items-center justify-center">
+        <div className="lg:col-span-7 bg-slate-950/40 border border-slate-850 p-6 rounded-xl flex items-center justify-center relative overflow-hidden">
           {selectedAthleteId ? (
-            <div className="border-[12px] border-amber-500/30 p-8 w-full max-w-xl bg-white text-neutral-900 font-serif text-center space-y-6 relative rounded-none shadow-2xl">
-              <div className="absolute top-4 left-4 border border-amber-600/30 text-[9px] px-1 font-sans text-amber-600/60 uppercase">FORKINDO</div>
+            <div 
+              className={`p-8 w-full max-w-xl text-neutral-900 font-serif text-center space-y-6 relative rounded-none shadow-2xl ${customFrame ? 'bg-transparent border-0' : 'bg-white border-[12px] border-amber-500/30'}`}
+              style={customFrame ? { backgroundImage: `url(${customFrame})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+            >
+              <div className={`absolute top-4 left-4 border text-[9px] px-1 font-sans uppercase ${customFrame ? 'border-neutral-900/30 text-neutral-900/60' : 'border-amber-600/30 text-amber-600/60'}`}>FORKINDO</div>
               <div className="absolute top-4 right-4 border border-indigo-650/30 text-[9px] px-1 font-sans text-indigo-400 uppercase">OFFICIAL CERTIFICATE</div>
               
               <div className="space-y-1.5">
@@ -174,7 +205,10 @@ export default function SertifikatView({ participants }: SertifikatViewProps) {
 
       {/* PRINT-ONLY ACTUAL LAYOUT OF THE CERTIFICATE FOR PERFECT FORMATTING */}
       {selectedAthlete && (
-        <div className="hidden print:block bg-white text-neutral-950 font-serif border-16 border-neutral-950 p-12 text-center h-[297mm] w-[210mm] max-w-full mx-auto relative rounded-none shadow-none">
+        <div 
+          className={`hidden print:block text-neutral-950 font-serif p-12 text-center h-[297mm] w-[210mm] max-w-full mx-auto relative rounded-none shadow-none print-color-adjust-exact ${customFrame ? 'bg-transparent border-0' : 'bg-white border-16 border-neutral-950'}`}
+          style={customFrame ? { backgroundImage: `url(${customFrame})`, backgroundSize: 'cover', backgroundPosition: 'center', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } : {}}
+        >
           <div className="space-y-4 pt-12">
             <h1 className="text-sm font-bold tracking-widest font-sans uppercase">FEDERASI OLAHRAGA KARATE-DO INDONESIA (FORKI) SUMBAR</h1>
             <h2 className="text-3xl font-black uppercase text-black tracking-widest underline underline-offset-8">PIAGAM PENGHARGAAN RESMI</h2>
