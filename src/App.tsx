@@ -224,14 +224,9 @@ export default function App() {
           supabase.from('payment_settings').select('*').limit(1)
         ]);
 
-        if (partsRes.data && partsRes.data.length > 0) setParticipants(partsRes.data);
-        else setParticipants(SAMPLE_PARTICIPANTS);
-
-        if (catsRes.data && catsRes.data.length > 0) setCategories(catsRes.data);
-        else setCategories(SAMPLE_CATEGORIES);
-
-        if (matsRes.data && matsRes.data.length > 0) setMatches(matsRes.data);
-        
+        if (partsRes.data) setParticipants(partsRes.data);
+        if (catsRes.data) setCategories(catsRes.data);
+        if (matsRes.data) setMatches(matsRes.data);
         if (settingsRes.data && settingsRes.data.length > 0) setPaymentSettings(settingsRes.data[0]);
 
         const session = localStorage.getItem('karate_session');
